@@ -8,7 +8,7 @@ import {
 } from '@/types/rooms';
 import { BASE_URL } from './apiClient';
 
-console.log('BASE_URL:', BASE_URL);
+console.log('BASE_URL in api room:', BASE_URL);
 
 export async function createRoom(request: RoomRequest): Promise<CreatedRoom> {
   try {
@@ -84,13 +84,31 @@ export async function fetchRoom(request: FetchRoomRequest): Promise<FetchRoomRes
     });
 
     const result = await response.json();
+    console.log('📱 Room fetch response:', {
+      status: response.status,
+      ok: response.ok,
+      result,
+    });
 
     if (!response.ok) {
+      if (response.status === 404) {
+        console.log('📱 No room found for user:', request.user_id);
+      }
       throw new Error(result.error || 'Failed to fetch room data');
+    }
+
+    if (!result.data) {
+      console.log('📱 No room data in response for user:', request.user_id);
     }
 
     return result.data as FetchRoomResponse;
   } catch (err: any) {
+    console.error('📱 Error fetching room:', {
+      error: err,
+      user_id: request.user_id,
+      message: err.message,
+    });
+
     if (err.name === 'TypeError') {
       throw new Error(
         `Unable to connect to server at ${BASE_URL}. Please check your network or that the backend is running.`,
