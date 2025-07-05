@@ -80,3 +80,16 @@ export async function fetchRoom(user_id: string) {
   console.log('✅ Room data found:', data);
   return data;
 }
+
+
+export async function fetchRoomByUserId(attrs: {
+  user_id: string,
+}) {
+  const { data, error } = await supabase
+    .from('room')
+    .select()
+    .or(`user_1.eq.${attrs.user_id}, user_2.eq.${attrs.user_id}`)
+    .single()
+  if (error) throw error;
+  return data;
+}
